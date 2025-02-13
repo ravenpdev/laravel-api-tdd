@@ -7,18 +7,45 @@ namespace App\Http\Controllers\Api\V1;
 use App\Actions\UpsertDepartmentAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpsertDepartmentRequest;
+use App\Http\Resources\DepartmentResource;
 use App\Models\Department;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 final class DepartmentController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $departments = Department::query()->get();
+        $departments = Department::query()
+            ->when($request->has('filter'), function (Builder $query) use ($request) {
+                $search = $request->string('filter')->toString();
+
+                return $query->where('name', 'like', "%$search%")
+                    ->orWhereLike('description', "%$search%");
+            })
+            ->when($request->has('sort'), function (Builder $query) use ($request) {
+                $sort = $request->string('sort')->toString();
+                $operand = mb_substr($sort, 0, 1);
+                $column = mb_substr($sort, 1);
+
+                if ($operand === '-') {
+                    return $query->orderByDesc($column);
+                }
+
+                return $query->orderBy($column);
+            })
+            ->simplePaginate(perPage: $request->has('page') ? $request->integer('page') : 10);
 
         return response()->json(
             data: [
-                'departments' => $departments,
+                'departments' => DepartmentResource::collection($departments),
+                'meta' => [
+                    'perPage' => $departments->perPage(),
+                    'currentPage' => $departments->currentPage(),
+                    'nextPageUrl' => $departments->nextPageUrl(),
+                    'prevPageUrl' => $departments->previousPageUrl(),
+                ],
             ],
             status: Response::HTTP_OK
         );
@@ -33,7 +60,7 @@ final class DepartmentController extends Controller
         );
 
         return response()->json(
-            data: ['department' => $department],
+            data: ['department' => new DepartmentResource($department)],
             status: Response::HTTP_CREATED
         );
     }
@@ -41,7 +68,7 @@ final class DepartmentController extends Controller
     public function show(Department $department): Response
     {
         return response()->json(
-            data: ['department' => $department],
+            data: ['department' => new DepartmentResource($department)],
             status: Response::HTTP_OK,
         );
     }

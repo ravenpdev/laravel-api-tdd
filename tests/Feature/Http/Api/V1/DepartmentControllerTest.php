@@ -17,17 +17,52 @@ describe('Get All Department', function () {
 
         $deparments = $response->json('departments');
 
-        expect($deparments)->toHaveCount(0);
+        expect($deparments)->toBeEmpty();
     });
 
     it('should return all departments', function () {
-        Department::factory(5)->create();
+        Department::factory(15)->create();
 
         $response = getJson(route('api.v1.departments.index'));
         $response->assertStatus(Response::HTTP_OK);
 
         $deparments = $response->json('departments');
-        expect($deparments)->toHaveCount(5);
+        $meta = $response->json('meta');
+
+        expect($deparments)->toHaveCount(10);
+        expect($meta)->perPage->toBe(10)
+            ->and($meta)->currentPage->toBe(1)
+            ->and($meta)->nextPageUrl->toContain('?page=2');
+    });
+
+    it('should filter department by name or description', function () {
+        Department::factory(5)->create();
+        Department::factory()->create([
+            'name' => 'HR Department',
+            'description' => 'HR Department desc.',
+        ]);
+        Department::factory()->create([
+            'name' => 'Developer Department',
+            'description' => 'Software Developer Department desc.',
+        ]);
+
+        $response = getJson(route('api.v1.departments.index', ['filter' => 'department']))
+            ->assertStatus(Response::HTTP_OK);
+
+        $departments = $response->json('departments');
+
+        expect($departments)->toHaveCount(2);
+    });
+
+    it('should return all department sort by id', function () {
+        Department::factory(10)->create();
+
+        $response = getJson(route('api.v1.departments.index', ['sort' => '-id']));
+
+        $response->assertStatus(Response::HTTP_OK);
+        $departments = $response->json('departments');
+
+        expect($departments[0])->id->toBe(Department::query()->latest('id')->first()->id);
     });
 });
 
@@ -40,8 +75,9 @@ describe('Create Department', function () {
 
         $response->assertStatus(Response::HTTP_CREATED);
         $department = $response->json('department');
-        expect($department['name'])->toBe($name)
-            ->and($department['description'])->toBe($description);
+
+        expect($department)->name->toBe($name)
+            ->and($department)->description->toBe($description);
     })->with([
         [
             'name' => 'Development',
@@ -82,7 +118,7 @@ describe('Get single department', function () {
         $response->assertStatus(Response::HTTP_OK);
         $data = $response->json('department');
 
-        expect($data['id'])->toBe($department->id);
+        expect($data)->id->toBe($department->id);
     });
 
     it('should return 404 not found', function () {
@@ -103,8 +139,8 @@ describe('Update department', function () {
 
         $department->refresh();
 
-        expect($department->name)->toBe($name)
-            ->and($department->description)->toBe($description);
+        expect($department)->name->toBe($name)
+            ->and($department)->description->toBe($description);
     })->with([
         ['name' => 'updated name', 'description' => 'updated description'],
     ]);
