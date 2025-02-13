@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Actions\UpsertDepartmentAction;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreDepartmentRequest;
+use App\Http\Requests\UpsertDepartmentRequest;
 use App\Models\Department;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -24,7 +24,7 @@ final class DepartmentController extends Controller
         );
     }
 
-    public function store(StoreDepartmentRequest $request, UpsertDepartmentAction $upsertDepartmentAction): Response
+    public function store(UpsertDepartmentRequest $request, UpsertDepartmentAction $upsertDepartmentAction): Response
     {
         $department = $upsertDepartmentAction->execute(
             department: new Department(),
@@ -46,7 +46,7 @@ final class DepartmentController extends Controller
         );
     }
 
-    public function update(StoreDepartmentRequest $request, Department $department, UpsertDepartmentAction $upsertDepartmentAction): Response
+    public function update(UpsertDepartmentRequest $request, Department $department, UpsertDepartmentAction $upsertDepartmentAction): Response
     {
         $upsertDepartmentAction->execute(
             $department,
