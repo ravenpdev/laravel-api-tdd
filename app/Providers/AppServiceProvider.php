@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
@@ -32,6 +33,7 @@ final class AppServiceProvider extends ServiceProvider
         $this->configDates();
         // $this->configUrls();
         $this->configVite();
+        $this->configJson();
     }
 
     /**
@@ -47,6 +49,7 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function configModels(): void
     {
+        Model::unguard();
         Model::shouldBeStrict(! app()->isProduction());
     }
 
@@ -69,5 +72,13 @@ final class AppServiceProvider extends ServiceProvider
     private function configVite(): void
     {
         Vite::useAggressivePrefetching();
+    }
+
+    /**
+     * Do not wrap json response with data
+     */
+    private function configJson(): void
+    {
+        JsonResource::withoutWrapping();
     }
 }
