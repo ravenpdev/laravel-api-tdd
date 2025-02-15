@@ -74,4 +74,13 @@ final class EmployeeController extends Controller
             ],
         )->setStatusCode(Response::HTTP_OK);
     }
+
+    public function show(Request $request, Employee $employee): Response
+    {
+        return response()->json(
+            [
+                'employee' => $employee,
+            ]
+        )->setStatusCode(Response::HTTP_OK);
+    }
 }
