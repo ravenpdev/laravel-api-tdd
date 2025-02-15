@@ -85,3 +85,27 @@ describe('Employee index', function () {
             ->and($meta['currentPage'])->toBe(1);
     });
 });
+
+describe('Employee show', function () {
+    it('should get an employee', function () {
+        $developer = Employee::factory()->create([
+            'first_name' => 'raven',
+            'last_name' => 'paragas',
+            'job_title' => 'php/laravel developer',
+        ]);
+
+        $response = getJson(route('api.v1.employees.show', ['employee' => $developer]));
+        $response->assertStatus(Response::HTTP_OK);
+        $employee = $response->json('employee');
+
+        expect($employee['id'])->toBe($developer->id)
+            ->and($employee['first_name'])->toBe('raven')
+            ->and($employee['last_name'])->toBe('paragas')
+            ->and($employee['job_title'])->toBe('php/laravel developer');
+    });
+
+    it('should return 404 not found', function () {
+        $response = getJson(route('api.v1.employees.show', ['employee' => '1234']));
+        $response->assertStatus(Response::HTTP_NOT_FOUND);
+    });
+});
