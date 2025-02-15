@@ -35,7 +35,7 @@ final class DepartmentController extends Controller
 
                 return $query->orderBy($column);
             })
-            ->simplePaginate(perPage: $request->has('page') ? $request->integer('page') : 10);
+            ->simplePaginate(perPage: $request->has('perPage') ? $request->integer('perPage') : 10);
 
         return response()->json(
             data: [
