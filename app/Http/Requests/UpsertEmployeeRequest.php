@@ -25,13 +25,15 @@ final class UpsertEmployeeRequest extends FormRequest
             'paymentType' => ['bail', 'required', Rule::enum(PaymentTypes::class)],
             'salary' => [
                 'bail',
-                'integer',
+                'nullable',
+                'numeric',
                 'min:1',
                 Rule::excludeIf(fn () => 'paymentType' === 'hourly_rate'),
             ],
             'hourlyRate' => [
                 'bail',
-                'integer',
+                'nullable',
+                'numeric',
                 'min:1',
                 Rule::excludeIf(fn () => 'paymentType' === 'salary'),
             ],

@@ -70,7 +70,7 @@ final class EmployeeController extends Controller
 
         return response()->json(
             [
-                'employees' => $employees->items(),
+                'employees' => EmployeeResource::collection($employees),
                 'meta' => [
                     'perPage' => $employees->perPage(),
                     'currentPage' => $employees->currentPage(),
@@ -106,5 +106,21 @@ final class EmployeeController extends Controller
                 'employee' => new EmployeeResource($employee),
             ]
         )->setStatusCode(Response::HTTP_CREATED);
+    }
+
+    public function update(UpsertEmployeeRequest $request, Employee $employee, UpsertEmployeeAction $upsertEmployeeAction): Response
+    {
+        $upsertEmployeeAction->execute(
+            employee: $employee,
+            departmentId: $request->string('departmentId')->toString(),
+            firstName: $request->string('firstName')->toString(),
+            lastName: $request->string('lastName')->toString(),
+            jobTitle: $request->string('jobTitle')->toString(),
+            paymentType: $request->string('paymentType')->toString(),
+            salary: $request->salary,
+            hourlyRate: $request->hourlyRate
+        );
+
+        return response()->noContent();
     }
 }

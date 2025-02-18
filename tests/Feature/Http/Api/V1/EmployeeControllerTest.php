@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+use App\enums\PaymentTypes;
 use App\Models\Department;
 use App\Models\Employee;
 use Symfony\Component\HttpFoundation\Response;
 
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
+use function Pest\Laravel\putJson;
 
 describe('Employee index', function () {
     it('should return all employees', function () {
@@ -76,7 +78,7 @@ describe('Employee index', function () {
         $response->assertStatus(Response::HTTP_OK);
         $employees = $response->json('employees');
         $meta = $response->json('meta');
-        $names = collect(array_values($employees))->pluck('first_name');
+        $names = collect(array_values($employees))->pluck('firstName');
 
         expect($names->toArray())->toBe([
             'elia',
@@ -223,7 +225,7 @@ describe('Employee store', function () {
         $response->assertInvalid(['salary'])
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     })->with([
-        '',
+        'hello',
         '0',
     ]);
 
@@ -241,7 +243,34 @@ describe('Employee store', function () {
         $response->assertInvalid(['hourlyRate'])
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     })->with([
-        '',
+        'hello',
         '0',
     ]);
+});
+
+describe('Employee update', function () {
+    it('should update an employee', function () {
+        $department = Department::factory()->create([
+            'name' => 'Developer',
+        ]);
+        $employee = Employee::factory()->salary()->create([
+            'department_id' => $department->id,
+        ]);
+
+        $response = putJson(route('api.v1.employees.update', ['employee' => $employee]), [
+            'departmentId' => $employee->department_id,
+            'firstName' => 'raven',
+            'lastName' => 'paragas',
+            'jobTitle' => $employee->job_title,
+            'paymentType' => 'hourly_rate',
+            'hourlyRate' => 20,
+        ]);
+        $response->assertStatus(Response::HTTP_NO_CONTENT);
+        $employee->refresh();
+
+        expect($employee->first_name)->toBe('raven')
+            ->and($employee->last_name)->toBe('paragas')
+            ->and($employee->payment_type)->toBe(PaymentTypes::HourlyRate)
+            ->and($employee->salary)->toBeNull();
+    });
 });
