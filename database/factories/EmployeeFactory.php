@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\enums\PaymentTypes;
 use App\Models\Department;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -24,7 +25,7 @@ final class EmployeeFactory extends Factory
             'first_name' => fake()->firstName,
             'last_name' => fake()->lastName,
             'job_title' => fake()->jobTitle,
-            'payment_type' => 'salary',
+            'payment_type' => PaymentTypes::Salary->value,
             'salary' => fake()->numberBetween(50_000, 100_000),
             'hourly_rate' => null,
         ];
@@ -34,7 +35,7 @@ final class EmployeeFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'payment_type' => 'salary',
+                'payment_type' => PaymentTypes::Salary->value,
                 'salary' => fake()->numberBetween(50_000, 100_000),
             ];
         });
@@ -44,7 +45,7 @@ final class EmployeeFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'payment_type' => 'hourly_rate',
+                'payment_type' => PaymentTypes::HourlyRate->value,
                 'hourly_rate' => fake()->numberBetween(20, 40),
             ];
         });

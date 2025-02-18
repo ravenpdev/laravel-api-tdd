@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\enums\PaymentTypes;
 use App\Models\Department;
 use App\Models\Employee;
 
@@ -25,14 +26,16 @@ test('to array', function () {
 it('should create an employee with a payment_type salary', function () {
     $employee = Employee::factory()->salary()->create()->refresh();
 
-    expect($employee->payment_type)->toBe('salary')
+    expect($employee->payment_type)->toBeInstanceOf(PaymentTypes::class)
+        ->and($employee->payment_type->value)->toBe('salary')
         ->and($employee->salary)->not()->toBeNull();
 });
 
 it('should create an employee with a payment_type hourly_rate', function () {
     $employee = Employee::factory()->hourly()->create()->refresh();
 
-    expect($employee->payment_type)->toBe('hourly_rate')
+    expect($employee->payment_type)->toBeInstanceOf(PaymentTypes::class)
+        ->and($employee->payment_type->value)->toBe('hourly_rate')
         ->and($employee->hourly_rate)->not()->toBeNull();
 });
 
