@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Models\Department;
 use App\Models\Employee;
 use Symfony\Component\HttpFoundation\Response;
 
 use function Pest\Laravel\getJson;
+use function Pest\Laravel\postJson;
 
 describe('Employee index', function () {
     it('should return all employees', function () {
@@ -99,13 +101,147 @@ describe('Employee show', function () {
         $employee = $response->json('employee');
 
         expect($employee['id'])->toBe($developer->id)
-            ->and($employee['first_name'])->toBe('raven')
-            ->and($employee['last_name'])->toBe('paragas')
-            ->and($employee['job_title'])->toBe('php/laravel developer');
+            ->and($employee['firstName'])->toBe('raven')
+            ->and($employee['lastName'])->toBe('paragas')
+            ->and($employee['jobTitle'])->toBe('php/laravel developer');
     });
 
     it('should return 404 not found', function () {
         $response = getJson(route('api.v1.employees.show', ['employee' => '1234']));
         $response->assertStatus(Response::HTTP_NOT_FOUND);
     });
+});
+
+describe('Employee store', function () {
+    it('should create an employee', function () {
+        $department = Department::factory()->create();
+
+        $response = postJson(route('api.v1.employees.store'), [
+            'departmentId' => $department->id,
+            'firstName' => 'raven',
+            'lastName' => 'paragas',
+            'jobTitle' => 'developer',
+            'paymentType' => 'salary',
+            'salary' => 40_000,
+        ]);
+        $response->assertStatus(Response::HTTP_CREATED);
+        $employee = $response->json('employee');
+
+        expect($employee['departmentId'])->toBe($department->id)
+            ->and($employee['firstName'])->toBe('raven')
+            ->and($employee['lastName'])->toBe('paragas')
+            ->and($employee['jobTitle'])->toBe('developer')
+            ->and($employee['paymentType'])->toBe('salary')
+            ->and($employee['salary'])->toBe(40_000);
+    });
+
+    it('should require departmentId', function () {
+        $response = postJson(route('api.v1.employees.store'), [
+            'firstName' => 'raven',
+            'lastName' => 'paragas',
+            'jobTitle' => 'developer',
+            'paymentType' => 'salary',
+            'salary' => 40_000,
+        ]);
+
+        $response->assertInvalid(['departmentId'])
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    });
+
+    it('should require firstName', function () {
+        $department = Department::factory()->create();
+        $response = postJson(route('api.v1.employees.store'), [
+            'departmentId' => $department->id,
+            'lastName' => 'paragas',
+            'jobTitle' => 'developer',
+            'paymentType' => 'salary',
+            'salary' => 40_000,
+        ]);
+
+        $response->assertInvalid(['firstName'])
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    });
+
+    it('should require lastName', function () {
+        $department = Department::factory()->create();
+        $response = postJson(route('api.v1.employees.store'), [
+            'departmentId' => $department->id,
+            'firstName' => 'raven',
+            'jobTitle' => 'developer',
+            'paymentType' => 'salary',
+            'salary' => 40_000,
+        ]);
+
+        $response->assertInvalid(['lastName'])
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    });
+
+    it('should require jobTitle', function () {
+        $department = Department::factory()->create();
+        $response = postJson(route('api.v1.employees.store'), [
+            'departmentId' => $department->id,
+            'firstName' => 'raven',
+            'lastName' => 'paragas',
+            'paymentType' => 'salary',
+            'salary' => 40_000,
+        ]);
+
+        $response->assertInvalid(['jobTitle'])
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    });
+
+    it('should require paymentType', function (?string $paymentType) {
+        $department = Department::factory()->create();
+        $response = postJson(route('api.v1.employees.store'), [
+            'departmentId' => $department->id,
+            'firstName' => 'raven',
+            'lastName' => 'paragas',
+            'paymentType' => $paymentType,
+            'jobTitle' => 'developer',
+            'salary' => 40_000,
+        ]);
+
+        $response->assertInvalid(['paymentType'])
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    })->with([
+        '',
+        'hello',
+        null,
+    ]);
+
+    it('should require salary if paymentType is salary', function (?string $salary) {
+        $department = Department::factory()->create();
+        $response = postJson(route('api.v1.employees.store'), [
+            'departmentId' => $department->id,
+            'firstName' => 'raven',
+            'lastName' => 'paragas',
+            'paymentType' => 'salary',
+            'salary' => $salary,
+            'jobTitle' => 'developer',
+        ]);
+
+        $response->assertInvalid(['salary'])
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    })->with([
+        '',
+        '0',
+    ]);
+
+    it('should require hourlyRate if paymentType is hourly_rate', function (?string $hourlyRate) {
+        $department = Department::factory()->create();
+        $response = postJson(route('api.v1.employees.store'), [
+            'departmentId' => $department->id,
+            'firstName' => 'raven',
+            'lastName' => 'paragas',
+            'paymentType' => 'hourly_rate',
+            'hourlyRate' => $hourlyRate,
+            'jobTitle' => 'developer',
+        ]);
+
+        $response->assertInvalid(['hourlyRate'])
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    })->with([
+        '',
+        '0',
+    ]);
 });

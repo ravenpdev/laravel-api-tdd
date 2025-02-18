@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\UpsertEmployeeAction;
+use App\enums\PaymentTypes;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpsertEmployeeRequest;
+use App\Http\Resources\EmployeeResource;
 use App\Models\Employee;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -75,12 +79,32 @@ final class EmployeeController extends Controller
         )->setStatusCode(Response::HTTP_OK);
     }
 
-    public function show(Request $request, Employee $employee): Response
+    public function show(Employee $employee): Response
     {
         return response()->json(
             [
-                'employee' => $employee,
+                'employee' => new EmployeeResource($employee),
             ]
         )->setStatusCode(Response::HTTP_OK);
+    }
+
+    public function store(UpsertEmployeeRequest $request, UpsertEmployeeAction $upsertEmployeeAction): Response
+    {
+        $employee = $upsertEmployeeAction->execute(
+            employee: new Employee(),
+            departmentId: $request->string('departmentId')->toString(),
+            firstName: $request->string('firstName')->toString(),
+            lastName: $request->string('lastName')->toString(),
+            jobTitle: $request->string('jobTitle')->toString(),
+            paymentType: $request->enum('paymentType', PaymentTypes::class)->value,
+            salary: $request->integer('salary'),
+            hourlyRate: $request->integer('hourlyRate'),
+        );
+
+        return response()->json(
+            data: [
+                'employee' => new EmployeeResource($employee),
+            ]
+        )->setStatusCode(Response::HTTP_CREATED);
     }
 }

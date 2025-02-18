@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\UpsertEmployeeAction;
+use App\enums\PaymentTypes;
 use App\Models\Department;
 use App\Models\Employee;
 
@@ -26,7 +27,7 @@ it('should create an employee', function () {
     expect($employee->first_name)->toBe('raven')
         ->and($employee->last_name)->toBe('paragas')
         ->and($employee->job_title)->toBe('developer')
-        ->and($employee->payment_type)->toBe('salary')
+        ->and($employee->payment_type)->toBeInstanceOf(PaymentTypes::class)
         ->and($employee->salary)->toBe(40_000)
         ->and($employee->hourly_rate)->toBeNull();
 });
@@ -54,7 +55,7 @@ it('should update an employee', function () {
         ->and($employee->first_name)->toBe('raven')
         ->and($employee->last_name)->toBe('paragas')
         ->and($employee->job_title)->toBe('developer')
-        ->and($employee->payment_type)->toBe('salary')
+        ->and($employee->payment_type)->toBeInstanceOf(PaymentTypes::class)
         ->and($employee->salary)->toBe(40_000)
         ->and($employee->hourly_rate)->toBeNull();
 });
@@ -85,7 +86,7 @@ it('should update employee payment_type from salary to hourly_rate', function ()
     expect($employee->id)->toBe($developer->id)
         ->and($employee->first_name)->toBe('raven')
         ->and($employee->last_name)->toBe('paragas')
-        ->and($employee->payment_type)->toBe('hourly_rate')
+        ->and($employee->payment_type)->toBeInstanceOf(PaymentTypes::class)
         ->and($employee->hourly_rate)->toBe(20)
         ->and($employee->salary)->toBeNull();
 });
@@ -116,7 +117,7 @@ it('should update employee payment_type from hourly_rate to salary', function ()
     expect($employee->id)->toBe($developer->id)
         ->and($employee->first_name)->toBe('raven')
         ->and($employee->last_name)->toBe('paragas')
-        ->and($employee->payment_type)->toBe('salary')
+        ->and($employee->payment_type)->toBeInstanceOf(PaymentTypes::class)
         ->and($employee->salary)->toBe(40_000)
         ->and($employee->hourly_rate)->toBeNull();
 });
