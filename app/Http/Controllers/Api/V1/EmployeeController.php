@@ -123,4 +123,11 @@ final class EmployeeController extends Controller
 
         return response()->noContent();
     }
+
+    public function destroy(Employee $employee): Response
+    {
+        $employee->delete();
+
+        return response()->noContent();
+    }
 }

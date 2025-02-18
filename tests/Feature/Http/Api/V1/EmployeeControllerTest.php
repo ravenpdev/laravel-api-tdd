@@ -7,6 +7,8 @@ use App\Models\Department;
 use App\Models\Employee;
 use Symfony\Component\HttpFoundation\Response;
 
+use function Pest\Laravel\assertDatabaseCount;
+use function Pest\Laravel\deleteJson;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
 use function Pest\Laravel\putJson;
@@ -272,5 +274,16 @@ describe('Employee update', function () {
             ->and($employee->last_name)->toBe('paragas')
             ->and($employee->payment_type)->toBe(PaymentTypes::HourlyRate)
             ->and($employee->salary)->toBeNull();
+    });
+});
+
+describe('Employee delete', function () {
+    it('should delete an employee', function () {
+        $employee = Employee::factory()->create();
+
+        $response = deleteJson(route('api.v1.employees.destroy', ['employee' => $employee]));
+        $response->assertStatus(Response::HTTP_NO_CONTENT);
+
+        assertDatabaseCount('employees', 0);
     });
 });
