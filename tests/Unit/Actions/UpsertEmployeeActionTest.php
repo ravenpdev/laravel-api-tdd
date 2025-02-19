@@ -3,7 +3,8 @@
 declare(strict_types=1);
 
 use App\Actions\UpsertEmployeeAction;
-use App\enums\PaymentTypes;
+use App\Enums\PaymentTypes;
+use App\Models\Concerns\PaymentType;
 use App\Models\Department;
 use App\Models\Employee;
 
@@ -21,13 +22,14 @@ it('should create an employee', function () {
         jobTitle: 'developer',
         paymentType: 'salary',
         salary: 40_000,
+        hourlyRate: null
     );
 
     assertDatabaseCount('employees', 1);
     expect($employee->first_name)->toBe('raven')
         ->and($employee->last_name)->toBe('paragas')
         ->and($employee->job_title)->toBe('developer')
-        ->and($employee->payment_type)->toBeInstanceOf(PaymentTypes::class)
+        ->and($employee->payment_type)->toBeInstanceOf(PaymentType::class)
         ->and($employee->salary)->toBe(40_000)
         ->and($employee->hourly_rate)->toBeNull();
 });
@@ -46,7 +48,8 @@ it('should update an employee', function () {
         lastName: 'paragas',
         jobTitle: 'developer',
         paymentType: 'salary',
-        salary: 40_000
+        salary: 40_000,
+        hourlyRate: null
     );
 
     assertDatabaseCount('employees', 1);
@@ -55,7 +58,8 @@ it('should update an employee', function () {
         ->and($employee->first_name)->toBe('raven')
         ->and($employee->last_name)->toBe('paragas')
         ->and($employee->job_title)->toBe('developer')
-        ->and($employee->payment_type)->toBeInstanceOf(PaymentTypes::class)
+        ->and($employee->payment_type)->toBeInstanceOf(PaymentType::class)
+        // ->and($employee->payment_type)->toBeInstanceOf(PaymentTypes::class)
         ->and($employee->salary)->toBe(40_000)
         ->and($employee->hourly_rate)->toBeNull();
 });
@@ -78,6 +82,7 @@ it('should update employee payment_type from salary to hourly_rate', function ()
         lastName: $developer->last_name,
         jobTitle: $developer->job_title,
         paymentType: 'hourly_rate',
+        salary: null,
         hourlyRate: 20,
     );
 
@@ -86,7 +91,8 @@ it('should update employee payment_type from salary to hourly_rate', function ()
     expect($employee->id)->toBe($developer->id)
         ->and($employee->first_name)->toBe('raven')
         ->and($employee->last_name)->toBe('paragas')
-        ->and($employee->payment_type)->toBeInstanceOf(PaymentTypes::class)
+        // ->and($employee->payment_type)->toBeInstanceOf(PaymentTypes::class)
+        ->and($employee->payment_type)->toBeInstanceOf(PaymentType::class)
         ->and($employee->hourly_rate)->toBe(20)
         ->and($employee->salary)->toBeNull();
 });
@@ -110,6 +116,7 @@ it('should update employee payment_type from hourly_rate to salary', function ()
         jobTitle: $developer->job_title,
         paymentType: 'salary',
         salary: 40_000,
+        hourlyRate: null
     );
 
     $employee->refresh();
@@ -117,7 +124,8 @@ it('should update employee payment_type from hourly_rate to salary', function ()
     expect($employee->id)->toBe($developer->id)
         ->and($employee->first_name)->toBe('raven')
         ->and($employee->last_name)->toBe('paragas')
-        ->and($employee->payment_type)->toBeInstanceOf(PaymentTypes::class)
+        ->and($employee->payment_type)->toBeInstanceOf(PaymentType::class)
+        // ->and($employee->payment_type)->toBeInstanceOf(PaymentTypes::class)
         ->and($employee->salary)->toBe(40_000)
         ->and($employee->hourly_rate)->toBeNull();
 });

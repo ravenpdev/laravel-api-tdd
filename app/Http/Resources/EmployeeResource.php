@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
+use App\ValueObjects\Money;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,7 +23,10 @@ final class EmployeeResource extends JsonResource
             'firstName' => $this->first_name,
             'lastName' => $this->last_name,
             'jobTitle' => $this->job_title,
-            'paymentType' => $this->payment_type,
+            'paymentType' => [
+                'type' => $this->payment_type->type(),
+                'amount' => Money::from($this->payment_type->amount())->toArray(),
+            ],
             'salary' => $this->salary,
             'hourlyRate' => $this->hourly_rate,
             'createdAt' => $this->created_at,

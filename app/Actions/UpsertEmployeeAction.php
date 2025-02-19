@@ -16,8 +16,8 @@ final class UpsertEmployeeAction
         string $lastName,
         string $jobTitle,
         string $paymentType,
-        ?int $salary = null,
-        ?int $hourlyRate = null
+        ?int $salary,
+        ?int $hourlyRate
     ): Employee {
         return DB::transaction(fn () => Employee::query()->updateOrCreate(
             [

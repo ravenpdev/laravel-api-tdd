@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Actions\UpsertEmployeeAction;
-use App\enums\PaymentTypes;
+use App\Enums\PaymentTypes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpsertEmployeeRequest;
 use App\Http\Resources\EmployeeResource;

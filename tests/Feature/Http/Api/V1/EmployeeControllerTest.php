@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\enums\PaymentTypes;
+use App\Enums\PaymentTypes;
 use App\Models\Department;
 use App\Models\Employee;
 use Symfony\Component\HttpFoundation\Response;
@@ -98,6 +98,7 @@ describe('Employee show', function () {
             'first_name' => 'raven',
             'last_name' => 'paragas',
             'job_title' => 'php/laravel developer',
+            'salary' => 40_000 * 100,
         ]);
 
         $response = getJson(route('api.v1.employees.show', ['employee' => $developer]));
@@ -107,7 +108,10 @@ describe('Employee show', function () {
         expect($employee['id'])->toBe($developer->id)
             ->and($employee['firstName'])->toBe('raven')
             ->and($employee['lastName'])->toBe('paragas')
-            ->and($employee['jobTitle'])->toBe('php/laravel developer');
+            ->and($employee['jobTitle'])->toBe('php/laravel developer')
+            ->and($employee['paymentType']['type'])->toBe(PaymentTypes::Salary->value)
+            ->and($employee['paymentType']['amount']['cents'])->toBe(4_000_000)
+            ->and($employee['paymentType']['amount']['dollars'])->toBe('$40,000.00');
     });
 
     it('should return 404 not found', function () {
@@ -135,7 +139,7 @@ describe('Employee store', function () {
             ->and($employee['firstName'])->toBe('raven')
             ->and($employee['lastName'])->toBe('paragas')
             ->and($employee['jobTitle'])->toBe('developer')
-            ->and($employee['paymentType'])->toBe('salary')
+            ->and($employee['paymentType']['type'])->toBe(PaymentTypes::Salary->value)
             ->and($employee['salary'])->toBe(40_000);
     });
 
@@ -272,7 +276,7 @@ describe('Employee update', function () {
 
         expect($employee->first_name)->toBe('raven')
             ->and($employee->last_name)->toBe('paragas')
-            ->and($employee->payment_type)->toBe(PaymentTypes::HourlyRate)
+            ->and($employee->payment_type->type())->toBe(PaymentTypes::HourlyRate->value)
             ->and($employee->salary)->toBeNull();
     });
 });
