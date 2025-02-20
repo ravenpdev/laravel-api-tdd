@@ -26,8 +26,9 @@ final class UpsertEmployeeRequest extends FormRequest
             'salary' => [
                 'bail',
                 'nullable',
-                'numeric',
-                'min:1',
+                Rule::numeric()
+                    ->integer()
+                    ->greaterThan('0'),
                 Rule::excludeIf(fn () => 'paymentType' === 'hourly_rate'),
             ],
             'hourlyRate' => [
