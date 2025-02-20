@@ -15,5 +15,6 @@ Route::get('/user', function (Request $request) {
 Route::prefix('/api/v1/')->name('api.v1.')->group(function () {
     Route::apiResource('departments', DepartmentController::class);
     Route::apiResource('employees', EmployeeController::class);
-    Route::apiResource('employees.paychecks', PaycheckController::class);
+    Route::apiResource('employees.paychecks', PaycheckController::class)->only(['index', 'show']);
+    Route::post('paychecks', [PaycheckController::class, 'store'])->name('paychecks.store');
 });
