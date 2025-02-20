@@ -7,6 +7,7 @@ use App\Models\Concerns\Salary;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Paycheck;
+use App\Models\Timelog;
 
 test('to array', function () {
     $employee = Employee::factory()->create()->refresh();
@@ -54,4 +55,14 @@ test('employee has many pachecks', function () {
     ]);
 
     expect($employee->paychecks)->toHaveCount(10);
+});
+
+test('employee has many timelogs', function () {
+    $employee = Employee::factory()->create()->fresh();
+    Timelog::factory(count: 10, state: [
+        'employee_id' => $employee->id,
+    ])->create()->fresh();
+
+    expect($employee->timelogs)->toHaveCount(10)
+        ->and($employee->timelogs()->first()->employee_id)->toBe($employee->id);
 });

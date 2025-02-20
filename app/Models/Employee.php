@@ -55,6 +55,11 @@ final class Employee extends Model
         return $this->hasMany(Paycheck::class);
     }
 
+    public function timelogs(): HasMany
+    {
+        return $this->hasMany(Timelog::class);
+    }
+
     // protected function casts(): array
     // {
     //     return [

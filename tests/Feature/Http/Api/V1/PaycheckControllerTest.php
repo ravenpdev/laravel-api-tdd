@@ -5,11 +5,14 @@ declare(strict_types=1);
 use App\Enums\PaymentTypes;
 use App\Models\Employee;
 use App\Models\Paycheck;
+use App\Models\Timelog;
+use Carbon\CarbonImmutable;
 use Symfony\Component\HttpFoundation\Response;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
+use function Pest\Laravel\travelTo;
 
 it('should return all employee paychecks', function () {
     $employee = Employee::factory()->create();
@@ -78,4 +81,54 @@ it('should create paychecks for salary employees', function () {
         'employee_id' => $employees[1]->id,
         'net_amount' => 583333,
     ]);
+});
+
+it('should create paychecks for hourly rate employees', function () {
+    travelTo(CarbonImmutable::parse('2025-02-20'), function () {
+        $employee = Employee::factory([
+            'hourly_rate' => 10 * 100,
+            'payment_type' => PaymentTypes::HourlyRate->value,
+        ])->create();
+
+        $dayBeforeYesterday = now()->subDays(2);
+        $yesterday = now()->subDay();
+        $today = now();
+
+        Timelog::factory()
+            ->count(3)
+            ->sequence(
+                [
+                    'employee_id' => $employee,
+                    'minutes' => 90,
+                    'started_at' => $dayBeforeYesterday,
+                    'stopped_at' => $dayBeforeYesterday->addMinutes(90),
+                ],
+                [
+                    'employee_id' => $employee,
+                    'minutes' => 15,
+                    'started_at' => $yesterday,
+                    'stopped_at' => $yesterday->addMinutes(15),
+                ],
+                [
+                    'employee_id' => $employee,
+                    'minutes' => 51,
+                    'started_at' => $today,
+                    'stopped_at' => $today->addMinutes(51),
+                ]
+            )
+            ->create();
+
+        $response = postJson(
+            route(
+                'api.v1.paychecks.store',
+                ['employee' => $employee]
+            )
+        );
+        $response->assertNoContent();
+
+        assertDatabaseHas('paychecks', [
+            'employee_id' => $employee->id,
+            'net_amount' => 30 * 100,
+        ]);
+    });
 });

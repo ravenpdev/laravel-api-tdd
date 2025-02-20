@@ -14,7 +14,7 @@ final class Salary extends PaymentType
     {
         throw_if(
             $employee->salary === null,
-            new RuntimeException('Hourly rate cannot be null')
+            new RuntimeException('Salary cannot be null')
         );
 
         parent::__construct($employee);
