@@ -37,18 +37,19 @@ describe('Get All Department', function () {
 
     it('should filter department by name or description', function () {
         Department::factory(5)->create();
-        Department::factory()->create([
-            'name' => 'HR Department',
-            'description' => 'HR Department desc.',
-        ]);
-        Department::factory()->create([
-            'name' => 'Developer Department',
-            'description' => 'Software Developer Department desc.',
-        ]);
+        Department::factory()->count(2)->sequence(
+            [
+                'name' => 'HR Department',
+                'description' => 'HR Department desc.',
+            ],
+            [
+                'name' => 'Developer Department',
+                'description' => 'Software Developer Department desc.',
+            ]
+        )->create();
 
-        $response = getJson(route('api.v1.departments.index', ['filter' => 'department']))
+        $response = getJson(route('api.v1.departments.index', ['filter[name]' => 'department']))
             ->assertStatus(Response::HTTP_OK);
-
         $departments = $response->json('departments');
 
         expect($departments)->toHaveCount(2);
