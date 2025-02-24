@@ -9,33 +9,32 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpsertDepartmentRequest;
 use App\Http\Resources\DepartmentResource;
 use App\Models\Department;
+use App\Pipes\FilterBy;
+use App\Pipes\SortBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Pipeline\Pipeline;
 use Symfony\Component\HttpFoundation\Response;
 
 final class DepartmentController extends Controller
 {
     public function index(Request $request): Response
     {
-        $departments = Department::query()
-            ->when($request->has('filter'), function (Builder $query) use ($request) {
-                $search = $request->string('filter')->toString();
-
-                return $query->where('name', 'like', "%$search%")
-                    ->orWhereLike('description', "%$search%");
-            })
-            ->when($request->has('sort'), function (Builder $query) use ($request) {
-                $sort = $request->string('sort')->toString();
-                $operand = mb_substr($sort, 0, 1);
-                $column = mb_substr($sort, 1);
-
-                if ($operand === '-') {
-                    return $query->orderByDesc($column);
-                }
-
-                return $query->orderBy($column);
-            })
-            ->simplePaginate(perPage: $request->has('perPage') ? $request->integer('perPage') : 10);
+        $departments = app(Pipeline::class)
+            ->send(Department::query())
+            ->through([
+                new FilterBy(
+                    fields: ['name', 'description'],
+                    filters: $request->array('filter')
+                ),
+                new SortBy(keyword: $request->string('sort')->toString()),
+            ])
+            ->then(function (Builder $builder) use ($request) {
+                return $builder->simplePaginate(
+                    perPage: $request->integer('page.size', 10),
+                    page: $request->integer('page.number', 1)
+                );
+            });
 
         return response()->json(
             data: [

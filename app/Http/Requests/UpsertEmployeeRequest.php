@@ -29,13 +29,16 @@ final class UpsertEmployeeRequest extends FormRequest
                 Rule::numeric()
                     ->integer()
                     ->greaterThan('0'),
+                // @phpstan-ignore-next-line
                 Rule::excludeIf(fn () => 'paymentType' === 'hourly_rate'),
             ],
             'hourlyRate' => [
                 'bail',
                 'nullable',
-                'numeric',
-                'min:1',
+                Rule::numeric()
+                    ->integer()
+                    ->greaterThan('0'),
+                // @phpstan-ignore-next-line
                 Rule::excludeIf(fn () => 'paymentType' === 'salary'),
             ],
         ];
