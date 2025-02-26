@@ -10,8 +10,8 @@ use Illuminate\Pipeline\Pipeline;
 it('should sort by id in ascending roder', function () {
     Employee::factory()
         ->count(50)
-        ->create()
-        ->fresh();
+        ->create();
+    // ->fresh();
 
     $employees = app(Pipeline::class)
         ->send(Employee::query())
@@ -19,7 +19,7 @@ it('should sort by id in ascending roder', function () {
             new SortBy(keyword: 'id'),
         ])
         ->then(function (Builder $builder) {
-            return $builder->get();
+            return $builder->get()->fresh();
         });
 
     expect($employees[0])->id->toBe(Employee::query()->latest()->first()->id);
