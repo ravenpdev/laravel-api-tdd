@@ -31,9 +31,6 @@ final class EmployeeFactory extends Factory
         ];
     }
 
-    /**
-     * @return Factory<\App\Models\Employee>
-     */
     public function salary(): Factory
     {
         return $this->state(function (array $attributes): array {
@@ -44,9 +41,6 @@ final class EmployeeFactory extends Factory
         });
     }
 
-    /**
-     * @return Factory<\App\Models\Employee>
-     */
     public function hourly(): Factory
     {
         return $this->state(function (array $attributes): array {
