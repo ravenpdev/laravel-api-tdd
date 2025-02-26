@@ -19,8 +19,8 @@ it('should sort by id in ascending roder', function () {
             new SortBy(keyword: 'id'),
         ])
         ->then(function (Builder $builder) {
-            return $builder->get()->fresh();
+            return $builder->get();
         });
 
-    expect($employees[0])->id->toBe(Employee::query()->latest()->first()->id);
+    expect($employees[0])->id->toBe(Employee::query()->first()->id);
 });
