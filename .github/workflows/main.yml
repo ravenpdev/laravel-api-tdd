@@ -46,6 +46,9 @@ jobs:
       - name: Install PHP dependencies
         run: composer install --no-interaction --no-progress --ansi
 
+      - name: Regenerate Autoload
+        run: composer dump-autoload
+
       - name: Get NPM cache directory
         id: npm-cache-dir
         shell: bash
@@ -63,9 +66,6 @@ jobs:
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm install
-
-      - name: Regenerate Autoload
-        run: composer dump-autoload
 
       - name: Build dependencies
         run: npm run build
