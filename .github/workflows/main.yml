@@ -1,4 +1,4 @@
-name: Tests
+name: Build and test
 
 on:
   push:
@@ -45,9 +45,6 @@ jobs:
 
       - name: Install PHP dependencies
         run: composer install --no-interaction --no-progress --ansi
-
-      - name: Regenerate Autoload
-        run: composer dump-autoload
 
       - name: Get NPM cache directory
         id: npm-cache-dir
