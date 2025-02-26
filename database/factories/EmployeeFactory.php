@@ -31,9 +31,12 @@ final class EmployeeFactory extends Factory
         ];
     }
 
+    /**
+     * @return Factory<\App\Models\Employee>
+     */
     public function salary(): Factory
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function (array $attributes): array {
             return [
                 'payment_type' => PaymentTypes::Salary->value,
                 'salary' => fake()->numberBetween(50_000, 100_000),
@@ -41,9 +44,12 @@ final class EmployeeFactory extends Factory
         });
     }
 
+    /**
+     * @return Factory<\App\Models\Employee>
+     */
     public function hourly(): Factory
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function (array $attributes): array {
             return [
                 'payment_type' => PaymentTypes::HourlyRate->value,
                 'hourly_rate' => fake()->numberBetween(20, 40),

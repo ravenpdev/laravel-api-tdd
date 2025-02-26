@@ -21,7 +21,7 @@ final class DepartmentController extends Controller
     public function index(Request $request): Response
     {
         $departments = app(Pipeline::class)
-            ->send(Department::query())
+            ->send(Department::class)
             ->through([
                 new FilterBy(
                     fields: ['name', 'description'],

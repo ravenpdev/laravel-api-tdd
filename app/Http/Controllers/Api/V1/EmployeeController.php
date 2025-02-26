@@ -22,7 +22,7 @@ final class EmployeeController extends Controller
     public function index(Request $request): Response
     {
         $employees = app(Pipeline::class)
-            ->send(Employee::query())
+            ->send(Employee::class)
             ->through([
                 new FilterBy(
                     fields: ['first_name', 'last_name'],
