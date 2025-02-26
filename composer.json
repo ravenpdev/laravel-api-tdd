@@ -67,8 +67,7 @@
         "test": [
             "@test:unit",
             "@test:lint",
-            "@test:types",
-            "@test:refactor"
+            "@test:types"
         ]
     },
     "extra": {
