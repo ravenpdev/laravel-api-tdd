@@ -24,7 +24,7 @@ it('should filter', function () {
         ->create();
 
     $filtered = app(Pipeline::class)
-        ->send(Employee::query())
+        ->send(Employee::class)
         ->through([
             new FilterBy(fields: ['first_name', 'last_name'], filters: ['last_name' => 'paragas']),
         ])->then(function (Builder $builder) {

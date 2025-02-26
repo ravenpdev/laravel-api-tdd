@@ -17,9 +17,13 @@ final class FilterBy
         //
     }
 
-    public function handle(Builder $queryBuilder, Closure $next)
+    /**
+     * @param  class-string  $modelClass
+     */
+    public function handle(string $modelClass, Closure $next)
     {
-        $queryBuilder = $queryBuilder
+        $model = app()->make($modelClass);
+        $queryBuilder = $model->query()
             ->when($this->filters, function (Builder $builder): Builder {
                 foreach ($this->fields as $key) {
                     if (! array_key_exists($key, $this->filters)) {
@@ -27,8 +31,7 @@ final class FilterBy
                     }
 
                     $value = $this->filters[$key];
-                    $builder
-                        ->orWhereLike($key, "%$value%");
+                    $builder->orWhereLike($key, "%$value%");
                 }
 
                 return $builder;
