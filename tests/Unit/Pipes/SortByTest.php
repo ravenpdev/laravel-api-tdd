@@ -7,11 +7,11 @@ use App\Pipes\SortBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pipeline\Pipeline;
 
-it('should sort by id in ascending roder', function () {
+it('should sort by id in ascending order', function () {
     Employee::factory()
         ->count(50)
-        ->create();
-    // ->fresh();
+        ->create()
+        ->fresh();
 
     $employees = app(Pipeline::class)
         ->send(Employee::query())
@@ -23,4 +23,22 @@ it('should sort by id in ascending roder', function () {
         });
 
     expect($employees[0])->id->toBe(Employee::query()->first()->id);
+});
+
+it('should sort by id in descending order', function () {
+    Employee::factory()
+        ->count(50)
+        ->create()
+        ->fresh();
+
+    $employees = app(Pipeline::class)
+        ->send(Employee::query())
+        ->through([
+            new SortBy(keyword: '-id'),
+        ])
+        ->then(function (Builder $builder) {
+            return $builder->get();
+        });
+
+    expect($employees[0])->id->toBe(Employee::query()->orderByDesc('id')->first()->id);
 });
